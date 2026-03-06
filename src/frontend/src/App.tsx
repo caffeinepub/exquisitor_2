@@ -56,6 +56,19 @@ const gridSvg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 
 const ADMIN_EMAIL = "admin@exquisitor.agency";
 
+// Scrolls the window to the top instantly on every route change
+function ScrollToTop() {
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname is intentionally the trigger
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
+
+  return null;
+}
+
 // Root layout with drawer state
 function RootLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -145,6 +158,7 @@ function RootLayout() {
         className="relative flex flex-col min-h-screen"
         style={{ zIndex: 1 }}
       >
+        <ScrollToTop />
         <Navbar onOpenDrawer={() => setDrawerOpen(true)} />
         <InquiryDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         <main className="flex-1 pt-[76px]">

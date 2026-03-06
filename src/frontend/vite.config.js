@@ -17,21 +17,7 @@ export default defineConfig({
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: "esbuild",
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Isolate large vendor bundles so the initial chunk stays small
-          if (id.includes("node_modules/@supabase")) return "vendor-supabase";
-          if (id.includes("node_modules/@radix-ui")) return "vendor-radix";
-          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) return "vendor-react";
-          if (id.includes("node_modules/motion") || id.includes("node_modules/framer-motion")) return "vendor-motion";
-          if (id.includes("node_modules/@tanstack")) return "vendor-tanstack";
-          if (id.includes("node_modules/lucide-react")) return "vendor-lucide";
-          if (id.includes("node_modules/three") || id.includes("node_modules/@react-three")) return "vendor-three";
-        },
-      },
-    },
+    minify: false,
   },
   css: {
     postcss: "./postcss.config.js",

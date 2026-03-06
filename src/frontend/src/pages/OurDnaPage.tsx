@@ -242,6 +242,74 @@ export default function OurDnaPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Founder Section */}
+      <section
+        data-ocid="dna.founder_section"
+        className="py-24 lg:py-32 px-6 bg-background border-t border-[#333333]"
+      >
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={stagger}
+            className="grid md:grid-cols-2 gap-16 items-center"
+          >
+            {/* Left — Founder photo */}
+            <motion.div variants={fadeUp} className="flex justify-start">
+              <img
+                data-ocid="dna.founder_photo"
+                src="/assets/generated/founder-placeholder.dim_600x700.jpg"
+                alt="Shlok Chaurasia — Founder, Exquisitor Tech"
+                className="w-full max-w-[340px] rounded object-cover"
+                loading="lazy"
+              />
+            </motion.div>
+
+            {/* Right — Text content */}
+            <div className="flex flex-col justify-center">
+              <motion.p
+                variants={fadeUp}
+                className="text-xs tracking-[0.4em] uppercase text-muted-foreground font-semibold mb-8"
+              >
+                The Architect of the Standard
+              </motion.p>
+
+              <motion.p
+                variants={fadeUp}
+                className="max-w-[480px] text-sm text-muted-foreground leading-loose"
+              >
+                "Exquisitor Tech was born from a singular obsession: the pursuit
+                of the 1%. I founded this firm on the principle that technical
+                brilliance and radical discipline are not mutually exclusive. My
+                goal is simple—to build the world's most precise bridge between
+                elite talent and global ambition. We don't just find engineers;
+                we curate the fuel for the next generation of tech."
+              </motion.p>
+
+              {/* Signature */}
+              <motion.div
+                variants={fadeUp}
+                className="mt-10 text-right max-w-[480px]"
+              >
+                <p
+                  className="font-serif italic text-lg tracking-tight"
+                  style={{ color: "#A1A1AA" }}
+                >
+                  Shlok Chaurasia
+                </p>
+                <p
+                  className="text-xs tracking-widest uppercase mt-1 font-sans not-italic"
+                  style={{ color: "#555555" }}
+                >
+                  Founder, Exquisitor
+                </p>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </>
   );
 }
