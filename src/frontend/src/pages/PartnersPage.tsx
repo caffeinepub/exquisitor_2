@@ -86,7 +86,7 @@ const labelClass =
   "block text-[10px] tracking-[0.35em] uppercase font-semibold mb-2.5";
 
 // Model strings used as URL params
-const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,250/mo)";
+const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,500/mo)";
 const MODEL_DIRECT = "Exquisitor Direct (20% of First-Year Salary)";
 const MODEL_PROJECT = "Exquisitor Project (Project-Based Billing)";
 
@@ -98,7 +98,7 @@ const partnerEngagementModels = [
     subtitle: "Staff Augmentation",
     modelParam: MODEL_EMBEDDED,
     pricingStartingFrom: true,
-    price: "£5,250 / month",
+    price: "£5,500 / month",
     priceNote: "Monthly Retainer",
     body: "Dedicated, senior engineering talent seamlessly integrated into your internal workflow. Full-time commitment, zero recruitment overhead.",
   },

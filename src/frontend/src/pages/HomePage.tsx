@@ -50,7 +50,7 @@ const bentoItems = [
 ];
 
 // Model param strings
-const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,250/mo)";
+const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,500/mo)";
 const MODEL_DIRECT = "Exquisitor Direct (20% of First-Year Salary)";
 const MODEL_PROJECT = "Exquisitor Project (Project-Based Billing)";
 
@@ -60,7 +60,7 @@ const engagementModels = [
     title: "Exquisitor Embedded",
     subtitle: "Staff Augmentation",
     pricingStartingFrom: true,
-    pricing: "£5,250 / month",
+    pricing: "£5,500 / month",
     pricingNote: "Monthly Retainer",
     body: "Dedicated elite developers seamlessly integrated into your internal engineering team. Full-time commitment, zero recruitment overhead.",
     featured: true,
