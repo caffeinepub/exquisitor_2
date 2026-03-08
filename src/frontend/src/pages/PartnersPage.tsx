@@ -57,17 +57,10 @@ const inputStyle = {
 const labelClass =
   "block text-[10px] tracking-[0.35em] uppercase font-semibold mb-2.5";
 
-// Model strings used as URL params (for the read-only selected model field)
+// Model strings used as URL params
 const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,500/mo)";
 const MODEL_DIRECT = "Exquisitor Direct (20% of First-Year Salary)";
 const MODEL_PROJECT = "Exquisitor Project (Project-Based Billing)";
-
-// Mapping from card modelParam → engagement_model dropdown value
-const MODEL_PARAM_TO_ENGAGEMENT: Record<string, string> = {
-  [MODEL_EMBEDDED]: "Staff Augmentation",
-  [MODEL_DIRECT]: "Dedicated Team",
-  [MODEL_PROJECT]: "Project-Based",
-};
 
 const partnerEngagementModels = [
   {
@@ -76,7 +69,6 @@ const partnerEngagementModels = [
     title: "Exquisitor Embedded",
     subtitle: "Staff Augmentation",
     modelParam: MODEL_EMBEDDED,
-    engagementValue: "Staff Augmentation",
     pricingStartingFrom: true,
     price: "£5,500 / month",
     priceNote: "Monthly Retainer",
@@ -88,7 +80,6 @@ const partnerEngagementModels = [
     title: "Exquisitor Direct",
     subtitle: "Executive Search",
     modelParam: MODEL_DIRECT,
-    engagementValue: "Dedicated Team",
     pricingStartingFrom: false,
     price: "20% of First-Year Salary",
     priceNote: "One-Time Fee",
@@ -100,7 +91,6 @@ const partnerEngagementModels = [
     title: "Exquisitor Project",
     subtitle: "End-to-End Delivery",
     modelParam: MODEL_PROJECT,
-    engagementValue: "Project-Based",
     pricingStartingFrom: false,
     price: "Project-Based Billing",
     priceNote: null,
@@ -129,15 +119,11 @@ const competitiveAdvantages = [
 interface PartnerLeadFormProps {
   selectedModel: string;
   onSelectedModelChange: (model: string) => void;
-  engagementModel: string;
-  onEngagementModelChange: (val: string) => void;
 }
 
 function PartnerLeadForm({
   selectedModel,
   onSelectedModelChange,
-  engagementModel,
-  onEngagementModelChange,
 }: PartnerLeadFormProps) {
   const [form, setForm] = useState({
     companyName: "",
@@ -145,6 +131,7 @@ function PartnerLeadForm({
     techStackNeeded: "",
     experienceLevel: "",
     industryVertical: "",
+    engagement_model: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,7 +156,7 @@ function PartnerLeadForm({
       toast.error("Please select an industry domain.");
       return;
     }
-    if (!engagementModel) {
+    if (!form.engagement_model) {
       toast.error("Please select a preferred engagement model.");
       return;
     }
@@ -184,7 +171,7 @@ function PartnerLeadForm({
           experience_level: form.experienceLevel,
           industry_vertical: form.industryVertical,
           selected_model: selectedModel,
-          engagement_model: engagementModel,
+          engagement_model: form.engagement_model,
         });
         if (error) throw error;
       } else {
@@ -239,7 +226,7 @@ function PartnerLeadForm({
         border: "1px solid rgba(255,255,255,0.1)",
       }}
     >
-      {/* Selected Engagement Model — read-only, auto-filled from URL param */}
+      {/* Selected Engagement Model — read-only, auto-filled */}
       <div>
         <label
           htmlFor="pl-selectedModel"
@@ -255,7 +242,7 @@ function PartnerLeadForm({
           readOnly
           value={selectedModel}
           onChange={(e) => onSelectedModelChange(e.target.value)}
-          placeholder="Select a model from the cards below to auto-fill"
+          placeholder="Select a model from above to auto-fill"
           className="w-full h-14 px-4 text-sm text-white rounded outline-none cursor-default"
           style={{
             background: "#0a1a14",
@@ -467,7 +454,7 @@ function PartnerLeadForm({
         </select>
       </div>
 
-      {/* Dropdown 4: Preferred Engagement Model — controlled from parent */}
+      {/* Dropdown 4: Preferred Engagement Model */}
       <div>
         <label
           htmlFor="pl-engagementModel"
@@ -480,24 +467,20 @@ function PartnerLeadForm({
           id="pl-engagementModel"
           name="engagement_model"
           required
-          value={engagementModel}
-          onChange={(e) => onEngagementModelChange(e.target.value)}
+          value={form.engagement_model}
+          onChange={handleChange}
           data-ocid="partners.engagement_model.select"
           className="w-full h-14 px-4 text-sm rounded outline-none transition-all duration-200 appearance-none cursor-pointer"
           style={{
             background: "#0a0a0a",
-            border: engagementModel
-              ? "1px solid rgba(6,78,59,0.6)"
-              : "1px solid rgba(255,255,255,0.08)",
-            color: engagementModel ? "white" : "rgba(255,255,255,0.25)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: form.engagement_model ? "white" : "rgba(255,255,255,0.25)",
           }}
           onFocus={(e) => {
             e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = engagementModel
-              ? "rgba(6,78,59,0.6)"
-              : "rgba(255,255,255,0.08)";
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
           }}
         >
           <option
@@ -517,14 +500,6 @@ function PartnerLeadForm({
             </option>
           ))}
         </select>
-        {engagementModel && (
-          <p
-            className="text-[10px] mt-2 tracking-wide"
-            style={{ color: "#10b981" }}
-          >
-            Pre-selected from Engagement Model card
-          </p>
-        )}
       </div>
 
       {/* Submit */}
@@ -550,24 +525,18 @@ function PartnerLeadForm({
 export default function PartnersPage() {
   const search = useSearch({ from: "/partners" });
   const [selectedModel, setSelectedModel] = useState(search.model ?? "");
-  const [engagementModel, setEngagementModel] = useState("");
   const formSectionRef = useRef<HTMLElement>(null);
 
-  // Sync URL param → selectedModel on mount / when URL param changes
+  // Sync URL param to form state on mount / when URL param changes
   useEffect(() => {
     if (search.model) {
       setSelectedModel(search.model);
-      // Also pre-select the engagement_model dropdown from the URL param
-      const mapped = MODEL_PARAM_TO_ENGAGEMENT[search.model];
-      if (mapped) setEngagementModel(mapped);
     }
   }, [search.model]);
 
-  // Called when a card's "Select This Model" button is clicked
-  const handleSelectModel = (modelParam: string, engagementValue: string) => {
+  const handleSelectModel = (modelParam: string) => {
     setSelectedModel(modelParam);
-    setEngagementModel(engagementValue);
-    // Scroll to the partner form
+    // Smooth scroll to the partner form
     const el = document.getElementById("partner-form");
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -576,7 +545,7 @@ export default function PartnersPage() {
 
   return (
     <>
-      {/* ─── Page Hero ─────────────────────────────────────────── */}
+      {/* Page Hero */}
       <section
         className="py-32 lg:py-40 px-6"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
@@ -631,87 +600,6 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* ─── Partner Inquiry Form (moved up — replaces old Engagement Models spot) ─── */}
-      <section
-        id="partner-form"
-        ref={formSectionRef}
-        className="py-28 lg:py-36 px-6"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <div className="max-w-[1200px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-            {/* Left — heading & trust signals */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <p
-                className="text-xs tracking-[0.4em] uppercase font-semibold mb-5"
-                style={{ color: "#A1A1AA" }}
-              >
-                Work With Us
-              </p>
-              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-6">
-                Partner With Exquisitor
-              </h2>
-              <p
-                className="text-lg leading-relaxed mb-10"
-                style={{ color: "#A1A1AA" }}
-              >
-                Tell us about your engineering needs and we'll match you with
-                The Top 5% of Indian Engineering Talent — meticulously vetted
-                and curated for Western enterprise standards.
-              </p>
-
-              {/* Trust signals */}
-              <div className="space-y-4">
-                {[
-                  "The Top 5% of Indian Engineering Talent",
-                  "3–5 vetted candidate profiles within 72 hours",
-                  "Timezone-aligned for UK, USA & Australia",
-                  "14-day seamless deployment process",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <div
-                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                      style={{ background: "rgba(255,255,255,0.35)" }}
-                    />
-                    <span className="text-sm" style={{ color: "#A1A1AA" }}>
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <p
-                className="mt-10 text-sm leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.3)" }}
-              >
-                Select an Engagement Model card below to automatically
-                pre-select your preferred model in the form.
-              </p>
-            </motion.div>
-
-            {/* Right — form */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-            >
-              <PartnerLeadForm
-                selectedModel={selectedModel}
-                onSelectedModelChange={setSelectedModel}
-                engagementModel={engagementModel}
-                onEngagementModelChange={setEngagementModel}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* ─── 7-Day Risk-Free Trial Guarantee ─────────────────── */}
       <section className="pt-20 pb-0 px-6" style={{ background: "#050505" }}>
         <div className="max-w-[1200px] mx-auto">
@@ -752,7 +640,7 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* ─── Engagement Models (cards linked to the form above) ── */}
+      {/* ─── Engagement Models ────────────────────────────────── */}
       <section
         id="engagement-models"
         className="py-28 lg:py-36 px-6"
@@ -783,125 +671,106 @@ export default function PartnersPage() {
               className="text-lg leading-relaxed max-w-xl mb-16"
               style={{ color: "#A1A1AA" }}
             >
-              Select a model below — clicking "Select This Model" will
-              automatically pre-fill your preferred engagement in the inquiry
-              form above.
+              Three distinct engagement structures to match your exact
+              requirements.
             </motion.p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-              {partnerEngagementModels.map((model, idx) => {
-                const isSelected = engagementModel === model.engagementValue;
-                return (
-                  <motion.div
-                    key={model.title}
-                    variants={fadeUp}
-                    className="rounded flex flex-col transition-all duration-200"
-                    style={
-                      model.featured
-                        ? {
-                            background: "#1a1a1a",
-                            border: isSelected
-                              ? "1px solid rgba(16,185,129,0.5)"
-                              : "1px solid rgba(255,255,255,0.25)",
-                            padding: "40px",
-                          }
-                        : {
-                            background: "#111111",
-                            border: isSelected
-                              ? "1px solid rgba(16,185,129,0.5)"
-                              : "1px solid rgba(255,255,255,0.08)",
-                            padding: "40px",
-                          }
-                    }
-                  >
-                    <div className="flex flex-col flex-1 space-y-5">
-                      {model.tag && (
-                        <p
-                          className="text-[10px] font-bold tracking-[0.35em] uppercase"
-                          style={{ color: "rgba(255,255,255,0.4)" }}
-                        >
-                          {model.tag}
-                        </p>
-                      )}
-                      {/* Title & subtitle */}
-                      <div>
-                        <h3 className="text-xl font-bold tracking-tight text-white leading-snug">
-                          {model.title}
-                        </h3>
-                        <p
-                          className="text-xs font-semibold tracking-[0.25em] uppercase mt-1"
-                          style={{ color: "#A1A1AA" }}
-                        >
-                          {model.subtitle}
-                        </p>
-                      </div>
-                      {/* Pricing block */}
-                      <div
-                        className="pt-5 min-h-[72px]"
-                        style={{
-                          borderTop: "1px solid rgba(255,255,255,0.1)",
-                        }}
-                      >
-                        {model.pricingStartingFrom ? (
-                          <>
-                            <span
-                              className="block text-sm font-normal"
-                              style={{ color: "#A1A1AA" }}
-                            >
-                              Starting from
-                            </span>
-                            <p className="text-2xl font-bold text-white tracking-tight mt-0.5">
-                              {model.price}
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <span className="block text-sm font-normal opacity-0 select-none">
-                              &nbsp;
-                            </span>
-                            <p className="text-2xl font-bold text-white tracking-tight mt-0.5">
-                              {model.price}
-                            </p>
-                          </>
-                        )}
-                        {model.priceNote && (
-                          <p
-                            className="text-xs mt-1 tracking-wide"
-                            style={{ color: "#A1A1AA" }}
-                          >
-                            {model.priceNote}
-                          </p>
-                        )}
-                      </div>
+              {partnerEngagementModels.map((model) => (
+                <motion.div
+                  key={model.title}
+                  variants={fadeUp}
+                  className="rounded flex flex-col"
+                  style={
+                    model.featured
+                      ? {
+                          background: "#1a1a1a",
+                          border: "1px solid rgba(255,255,255,0.25)",
+                          padding: "40px",
+                        }
+                      : {
+                          background: "#111111",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          padding: "40px",
+                        }
+                  }
+                >
+                  <div className="flex flex-col flex-1 space-y-5">
+                    {model.tag && (
                       <p
-                        className="text-sm leading-relaxed flex-1"
+                        className="text-[10px] font-bold tracking-[0.35em] uppercase"
+                        style={{ color: "rgba(255,255,255,0.4)" }}
+                      >
+                        {model.tag}
+                      </p>
+                    )}
+                    {/* Title & subtitle */}
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight text-white leading-snug">
+                        {model.title}
+                      </h3>
+                      <p
+                        className="text-xs font-semibold tracking-[0.25em] uppercase mt-1"
                         style={{ color: "#A1A1AA" }}
                       >
-                        {model.body}
+                        {model.subtitle}
                       </p>
-
-                      {/* Select This Model CTA — pre-fills form above */}
-                      <button
-                        type="button"
-                        data-ocid={`partners.engagement.select_button.${idx + 1}`}
-                        onClick={() =>
-                          handleSelectModel(
-                            model.modelParam,
-                            model.engagementValue,
-                          )
-                        }
-                        className={`mt-4 w-full h-12 font-bold tracking-widest uppercase text-xs rounded transition-colors ${
-                          isSelected
-                            ? "bg-[#064e3b] text-white border border-[#10b981]/40 hover:bg-[#065f46]"
-                            : "bg-white text-black hover:bg-white/90"
-                        }`}
-                      >
-                        {isSelected ? "Selected" : "Select This Model"}
-                      </button>
                     </div>
-                  </motion.div>
-                );
-              })}
+                    {/* Pricing block — always same height structure */}
+                    <div
+                      className="pt-5 min-h-[72px]"
+                      style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      {model.pricingStartingFrom ? (
+                        <>
+                          <span
+                            className="block text-sm font-normal"
+                            style={{ color: "#A1A1AA" }}
+                          >
+                            Starting from
+                          </span>
+                          <p className="text-2xl font-bold text-white tracking-tight mt-0.5">
+                            {model.price}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="block text-sm font-normal opacity-0 select-none">
+                            &nbsp;
+                          </span>
+                          <p className="text-2xl font-bold text-white tracking-tight mt-0.5">
+                            {model.price}
+                          </p>
+                        </>
+                      )}
+                      {model.priceNote && (
+                        <p
+                          className="text-xs mt-1 tracking-wide"
+                          style={{ color: "#A1A1AA" }}
+                        >
+                          {model.priceNote}
+                        </p>
+                      )}
+                    </div>
+                    <p
+                      className="text-sm leading-relaxed flex-1"
+                      style={{ color: "#A1A1AA" }}
+                    >
+                      {model.body}
+                    </p>
+
+                    {/* Select This Model CTA */}
+                    <button
+                      type="button"
+                      data-ocid={`partners.engagement.select_button.${partnerEngagementModels.indexOf(model) + 1}`}
+                      onClick={() => handleSelectModel(model.modelParam)}
+                      className="mt-4 w-full h-12 bg-white text-black font-bold tracking-widest uppercase text-xs rounded hover:bg-white/90 transition-colors"
+                    >
+                      Select This Model
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -1247,6 +1116,77 @@ export default function PartnersPage() {
               ))}
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Partner Lead Form */}
+      <section
+        id="partner-form"
+        ref={formSectionRef}
+        className="py-32 lg:py-40 px-6"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+            {/* Left — heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <p
+                className="text-xs tracking-[0.4em] uppercase font-semibold mb-5"
+                style={{ color: "#A1A1AA" }}
+              >
+                Work With Us
+              </p>
+              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-6">
+                Partner With Exquisitor
+              </h2>
+              <p
+                className="text-lg leading-relaxed mb-10"
+                style={{ color: "#A1A1AA" }}
+              >
+                Tell us about your engineering needs and we'll match you with
+                The Top 5% of Indian Engineering Talent — meticulously vetted
+                and curated for Western enterprise standards.
+              </p>
+
+              {/* Trust signals */}
+              <div className="space-y-4">
+                {[
+                  "The Top 5% of Indian Engineering Talent",
+                  "3–5 vetted candidate profiles within 72 hours",
+                  "Timezone-aligned for UK, USA & Australia",
+                  "14-day seamless deployment process",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <div
+                      className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                      style={{ background: "rgba(255,255,255,0.35)" }}
+                    />
+                    <span className="text-sm" style={{ color: "#A1A1AA" }}>
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right — form */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+            >
+              <PartnerLeadForm
+                selectedModel={selectedModel}
+                onSelectedModelChange={setSelectedModel}
+              />
+            </motion.div>
+          </div>
         </div>
       </section>
     </>
