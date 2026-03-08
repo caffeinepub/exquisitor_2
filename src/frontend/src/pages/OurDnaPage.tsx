@@ -254,21 +254,10 @@ export default function OurDnaPage() {
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             variants={stagger}
-            className="grid md:grid-cols-2 gap-16 items-center"
+            className="flex justify-center"
           >
-            {/* Left — Founder photo */}
-            <motion.div variants={fadeUp} className="flex justify-start">
-              <img
-                data-ocid="dna.founder_photo"
-                src="/assets/generated/founder-placeholder.dim_600x700.jpg"
-                alt="Shlok Chaurasia — Founder, Exquisitor Tech"
-                className="w-full max-w-[340px] rounded object-cover"
-                loading="lazy"
-              />
-            </motion.div>
-
-            {/* Right — Text content */}
-            <div className="flex flex-col justify-center">
+            {/* Text content */}
+            <div className="flex flex-col justify-center max-w-[600px]">
               <motion.p
                 variants={fadeUp}
                 className="text-xs tracking-[0.4em] uppercase text-muted-foreground font-semibold mb-8"
@@ -280,8 +269,8 @@ export default function OurDnaPage() {
                 variants={fadeUp}
                 className="max-w-[480px] text-sm text-muted-foreground leading-loose"
               >
-                "Exquisitor Tech was born from a singular obsession: the pursuit
-                of the 1%. I founded this firm on the principle that technical
+                "Exquisitor was born from a singular obsession: the pursuit of
+                the 1%. I founded this firm on the principle that technical
                 brilliance and radical discipline are not mutually exclusive. My
                 goal is simple—to build the world's most precise bridge between
                 elite talent and global ambition. We don't just find engineers;

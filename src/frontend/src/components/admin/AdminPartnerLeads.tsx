@@ -31,7 +31,8 @@ interface SupabasePartnerLead {
   company_name: string;
   corporate_email: string;
   tech_stack: string[] | null;
-  monthly_budget: string;
+  experience_level: string | null;
+  industry_vertical: string | null;
   selected_model: string | null;
   status: string;
 }
@@ -206,7 +207,8 @@ export default function AdminPartnerLeads() {
                   "Company",
                   "Corporate Email",
                   "Tech Stack",
-                  "Monthly Budget",
+                  "Experience Level",
+                  "Industry",
                   "Engagement Model",
                   "Submitted",
                   "Status",
@@ -240,7 +242,7 @@ export default function AdminPartnerLeads() {
                     {lead.corporate_email}
                   </TableCell>
                   <TableCell
-                    className="text-sm max-w-[180px]"
+                    className="text-sm max-w-[160px]"
                     style={{ color: "#A1A1AA" }}
                   >
                     {Array.isArray(lead.tech_stack)
@@ -251,7 +253,13 @@ export default function AdminPartnerLeads() {
                     className="text-sm whitespace-nowrap"
                     style={{ color: "#A1A1AA" }}
                   >
-                    {lead.monthly_budget}
+                    {lead.experience_level ?? "—"}
+                  </TableCell>
+                  <TableCell
+                    className="text-sm whitespace-nowrap"
+                    style={{ color: "#A1A1AA" }}
+                  >
+                    {lead.industry_vertical ?? "—"}
                   </TableCell>
                   <TableCell
                     data-ocid={`admin.partner_leads.engagement_model.${idx + 1}`}

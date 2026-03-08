@@ -1,67 +1,39 @@
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSearch } from "@tanstack/react-router";
-import { Building2, Check, CheckCircle, Loader2, X } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { type Variants, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useGetPartners } from "../hooks/useQueries";
 import { supabase } from "../lib/supabaseClient";
 
-// Tech stack combobox options
+// Dropdown options
 const TECH_STACK_OPTIONS = [
-  // Roles
-  "Full-Stack",
-  "Front-End",
-  "Back-End",
-  "Mobile",
-  "Game",
-  "DevOps",
-  "Cloud",
-  "AI",
-  "Machine Learning",
-  "Data Engineer",
-  "Blockchain",
-  "Automation QA",
-  // Technologies
-  "React",
-  "Angular",
-  "Vue.js",
-  "TypeScript",
-  "JavaScript",
-  "Next.js",
-  "Tailwind CSS",
-  "Node.js",
-  "Python",
-  "Django",
-  "Java",
-  "Spring Boot",
-  ".NET Core",
-  "C#",
-  "Go",
-  "Rust",
-  "Ruby on Rails",
-  "AWS",
-  "Azure",
-  "GCP",
-  "Kubernetes",
-  "Docker",
-  "Terraform",
-  "CI/CD",
-  "OpenAI API",
-  "TensorFlow",
-  "PyTorch",
-  "SQL/NoSQL",
-  "iOS",
-  "Android",
-  "React Native",
-  "Flutter",
-  "Solidity",
-  "Smart Contracts",
-  "web3.js",
+  "React.js / Frontend",
+  "Node.js / Backend",
+  "Python / Django",
+  "Full Stack (MERN)",
+  "Cloud/AWS Architecture",
+  "Other",
 ];
 
-const OTHER_OPTION = "Other (Type Custom Stack)";
+const EXPERIENCE_LEVEL_OPTIONS = [
+  "Senior Engineer (5+ Years)",
+  "Engineering Lead",
+  "Systems Architect",
+];
+
+const INDUSTRY_OPTIONS = [
+  "B2B SaaS",
+  "Fintech & Payments",
+  "E-Commerce Infrastructure",
+  "Healthtech",
+  "Other",
+];
+
+const ENGAGEMENT_MODEL_OPTIONS = [
+  "Dedicated Team",
+  "Project-Based",
+  "Staff Augmentation",
+];
 
 const stagger: Variants = {
   hidden: {},
@@ -157,18 +129,12 @@ function PartnerLeadForm({
     companyName: "",
     corporateEmail: "",
     techStackNeeded: "",
-    monthlyBudget: "",
+    experienceLevel: "",
+    industryVertical: "",
+    engagement_model: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Multi-select combobox state
-  const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customStack, setCustomStack] = useState("");
-  const comboboxRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -176,53 +142,24 @@ function PartnerLeadForm({
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Outside-click handler for the combobox dropdown
-  useEffect(() => {
-    const handleMouseDown = (e: MouseEvent) => {
-      if (
-        comboboxRef.current &&
-        !comboboxRef.current.contains(e.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleMouseDown);
-    return () => document.removeEventListener("mousedown", handleMouseDown);
-  }, []);
-
-  const handleToggleTech = (tech: string) => {
-    if (tech === OTHER_OPTION) {
-      setShowCustomInput(true);
-      setDropdownOpen(false);
-      return;
-    }
-    setSelectedTechs((prev) =>
-      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech],
-    );
-  };
-
-  const handleRemoveTech = (tech: string) => {
-    setSelectedTechs((prev) => prev.filter((t) => t !== tech));
-  };
-
-  const filteredOptions = TECH_STACK_OPTIONS.filter((opt) =>
-    opt.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedTechs.length === 0 && customStack.trim().length === 0) {
-      toast.error("Please select at least one technology.");
+    if (!form.techStackNeeded) {
+      toast.error("Please select a primary tech stack.");
       return;
     }
-    if (!form.monthlyBudget) {
-      toast.error("Please select a monthly budget range.");
+    if (!form.experienceLevel) {
+      toast.error("Please select a required experience level.");
       return;
     }
-    const techStackArray = [
-      ...selectedTechs,
-      ...(customStack.trim() ? [customStack.trim()] : []),
-    ];
+    if (!form.industryVertical) {
+      toast.error("Please select an industry domain.");
+      return;
+    }
+    if (!form.engagement_model) {
+      toast.error("Please select a preferred engagement model.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -230,13 +167,14 @@ function PartnerLeadForm({
         const { error } = await supabase.from("partner_inquiries").insert({
           company_name: form.companyName,
           corporate_email: form.corporateEmail,
-          tech_stack: techStackArray,
-          monthly_budget: form.monthlyBudget,
+          tech_stack: [form.techStackNeeded],
+          experience_level: form.experienceLevel,
+          industry_vertical: form.industryVertical,
           selected_model: selectedModel,
+          engagement_model: form.engagement_model,
         });
         if (error) throw error;
       } else {
-        // Supabase not configured — log and treat as success so the UI stays functional
         console.warn("[Supabase] Not configured — form submission skipped.");
       }
       setSubmitted(true);
@@ -372,200 +310,27 @@ function PartnerLeadForm({
         />
       </div>
 
-      {/* Primary Tech Stack — Multi-Select Combobox */}
+      {/* Dropdown 1: Primary Tech Stack Needed */}
       <div>
         <label
-          htmlFor="pl-techStack-search"
+          htmlFor="pl-techStack"
           className={labelClass}
           style={{ color: "rgba(255,255,255,0.4)" }}
         >
           Primary Tech Stack Needed *
         </label>
-
-        <div
-          ref={comboboxRef}
-          className="relative"
-          data-ocid="partners.tech_stack_combobox.input"
-        >
-          {/* Trigger area */}
-          {/* biome-ignore lint/a11y/useSemanticElements: composite combobox trigger — inner input handles keyboard */}
-          {/* biome-ignore lint/a11y/useAriaPropsForRole: aria-controls is optional for this inline widget */}
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard access handled by inner search input */}
-          <div
-            aria-expanded={dropdownOpen}
-            aria-haspopup="listbox"
-            className="relative min-h-14 w-full rounded px-4 py-2 cursor-text flex flex-wrap gap-2 items-center transition-all duration-200"
-            style={{
-              background: "#0a0a0a",
-              border: dropdownOpen
-                ? "1px solid rgba(255,255,255,0.3)"
-                : "1px solid rgba(255,255,255,0.08)",
-            }}
-            onClick={() => setDropdownOpen(true)}
-          >
-            {/* Selected pills */}
-            {selectedTechs.map((tech) => (
-              <span
-                key={tech}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs text-white"
-                style={{
-                  background: "#111111",
-                  border: "1px solid #333333",
-                }}
-              >
-                {tech}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveTech(tech);
-                  }}
-                  className="text-white/50 hover:text-white transition-colors ml-0.5 leading-none"
-                  aria-label={`Remove ${tech}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-
-            {/* Search input */}
-            <input
-              id="pl-techStack-search"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setDropdownOpen(true);
-              }}
-              onFocus={() => setDropdownOpen(true)}
-              placeholder={
-                selectedTechs.length === 0
-                  ? "Search roles & technologies..."
-                  : ""
-              }
-              className="flex-1 min-w-[160px] text-sm text-white bg-transparent outline-none placeholder:text-white/25 py-1"
-            />
-          </div>
-
-          {/* Dropdown panel */}
-          {dropdownOpen && (
-            <div
-              className="absolute left-0 right-0 z-50 mt-1 rounded overflow-y-auto max-h-64"
-              style={{
-                background: "rgba(17,17,17,0.97)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-              }}
-            >
-              {filteredOptions.length === 0 ? (
-                <p className="px-4 py-3 text-xs text-white/40">
-                  No results for "{searchQuery}"
-                </p>
-              ) : (
-                filteredOptions.map((opt) => {
-                  const isSelected = selectedTechs.includes(opt);
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => handleToggleTech(opt)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors hover:bg-white/5"
-                      style={{
-                        color: isSelected
-                          ? "rgba(255,255,255,0.5)"
-                          : "rgba(255,255,255,0.85)",
-                      }}
-                    >
-                      <span>{opt}</span>
-                      {isSelected && (
-                        <Check className="h-3.5 w-3.5 shrink-0 text-white/40" />
-                      )}
-                    </button>
-                  );
-                })
-              )}
-
-              {/* Divider + Other option */}
-              {(filteredOptions.length > 0 ||
-                OTHER_OPTION.toLowerCase().includes(
-                  searchQuery.toLowerCase(),
-                )) && (
-                <>
-                  <div
-                    className="mx-4 my-1"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleToggleTech(OTHER_OPTION)}
-                    className="w-full flex items-center px-4 py-2.5 text-sm text-left transition-colors hover:bg-white/5"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
-                  >
-                    {OTHER_OPTION}
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Custom stack reveal */}
-        {showCustomInput && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            className="overflow-hidden mt-4"
-          >
-            <label
-              htmlFor="pl-customStack"
-              className={labelClass}
-              style={{ color: "rgba(255,255,255,0.4)" }}
-            >
-              Please specify your required technologies
-            </label>
-            <input
-              id="pl-customStack"
-              type="text"
-              value={customStack}
-              onChange={(e) => setCustomStack(e.target.value)}
-              placeholder="e.g. COBOL, SAP, Mainframe..."
-              className={inputClass}
-              style={inputStyle}
-              data-ocid="partners.custom_stack.input"
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-              }}
-            />
-          </motion.div>
-        )}
-      </div>
-
-      {/* Monthly Budget */}
-      <div>
-        <label
-          htmlFor="pl-budget"
-          className={labelClass}
-          style={{ color: "rgba(255,255,255,0.4)" }}
-        >
-          Monthly Budget per Developer *
-        </label>
         <select
-          id="pl-budget"
-          name="monthlyBudget"
+          id="pl-techStack"
+          name="techStackNeeded"
           required
-          value={form.monthlyBudget}
+          value={form.techStackNeeded}
           onChange={handleChange}
-          data-ocid="partners.budget.select"
+          data-ocid="partners.tech_stack.select"
           className="w-full h-14 px-4 text-sm rounded outline-none transition-all duration-200 appearance-none cursor-pointer"
           style={{
             background: "#0a0a0a",
             border: "1px solid rgba(255,255,255,0.08)",
-            color: form.monthlyBudget ? "white" : "rgba(255,255,255,0.25)",
+            color: form.techStackNeeded ? "white" : "rgba(255,255,255,0.25)",
           }}
           onFocus={(e) => {
             e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
@@ -579,26 +344,161 @@ function PartnerLeadForm({
             disabled
             style={{ background: "#111111", color: "rgba(255,255,255,0.4)" }}
           >
-            Select budget range
+            Select primary tech stack
           </option>
+          {TECH_STACK_OPTIONS.map((opt) => (
+            <option
+              key={opt}
+              value={opt}
+              style={{ background: "#111111", color: "white" }}
+            >
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Dropdown 2: Required Experience Level */}
+      <div>
+        <label
+          htmlFor="pl-experienceLevel"
+          className={labelClass}
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Required Experience Level *
+        </label>
+        <select
+          id="pl-experienceLevel"
+          name="experienceLevel"
+          required
+          value={form.experienceLevel}
+          onChange={handleChange}
+          data-ocid="partners.experience_level.select"
+          className="w-full h-14 px-4 text-sm rounded outline-none transition-all duration-200 appearance-none cursor-pointer"
+          style={{
+            background: "#0a0a0a",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: form.experienceLevel ? "white" : "rgba(255,255,255,0.25)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+          }}
+        >
           <option
-            value="£5,000 - £7,000"
-            style={{ background: "#111111", color: "white" }}
+            value=""
+            disabled
+            style={{ background: "#111111", color: "rgba(255,255,255,0.4)" }}
           >
-            £5,000 – £7,000
+            Select experience level
           </option>
+          {EXPERIENCE_LEVEL_OPTIONS.map((opt) => (
+            <option
+              key={opt}
+              value={opt}
+              style={{ background: "#111111", color: "white" }}
+            >
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Dropdown 3: Industry Domain / Vertical */}
+      <div>
+        <label
+          htmlFor="pl-industryVertical"
+          className={labelClass}
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Industry Domain / Vertical *
+        </label>
+        <select
+          id="pl-industryVertical"
+          name="industryVertical"
+          required
+          value={form.industryVertical}
+          onChange={handleChange}
+          data-ocid="partners.industry_vertical.select"
+          className="w-full h-14 px-4 text-sm rounded outline-none transition-all duration-200 appearance-none cursor-pointer"
+          style={{
+            background: "#0a0a0a",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: form.industryVertical ? "white" : "rgba(255,255,255,0.25)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+          }}
+        >
           <option
-            value="£7,000 - £10,000"
-            style={{ background: "#111111", color: "white" }}
+            value=""
+            disabled
+            style={{ background: "#111111", color: "rgba(255,255,255,0.4)" }}
           >
-            £7,000 – £10,000
+            Select industry domain
           </option>
+          {INDUSTRY_OPTIONS.map((opt) => (
+            <option
+              key={opt}
+              value={opt}
+              style={{ background: "#111111", color: "white" }}
+            >
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Dropdown 4: Preferred Engagement Model */}
+      <div>
+        <label
+          htmlFor="pl-engagementModel"
+          className={labelClass}
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Preferred Engagement Model *
+        </label>
+        <select
+          id="pl-engagementModel"
+          name="engagement_model"
+          required
+          value={form.engagement_model}
+          onChange={handleChange}
+          data-ocid="partners.engagement_model.select"
+          className="w-full h-14 px-4 text-sm rounded outline-none transition-all duration-200 appearance-none cursor-pointer"
+          style={{
+            background: "#0a0a0a",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: form.engagement_model ? "white" : "rgba(255,255,255,0.25)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+          }}
+        >
           <option
-            value="£10,000+"
-            style={{ background: "#111111", color: "white" }}
+            value=""
+            disabled
+            style={{ background: "#111111", color: "rgba(255,255,255,0.4)" }}
           >
-            £10,000+
+            Select engagement model
           </option>
+          {ENGAGEMENT_MODEL_OPTIONS.map((opt) => (
+            <option
+              key={opt}
+              value={opt}
+              style={{ background: "#111111", color: "white" }}
+            >
+              {opt}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -623,7 +523,6 @@ function PartnerLeadForm({
 }
 
 export default function PartnersPage() {
-  const { data: partners, isLoading } = useGetPartners();
   const search = useSearch({ from: "/partners" });
   const [selectedModel, setSelectedModel] = useState(search.model ?? "");
   const formSectionRef = useRef<HTMLElement>(null);
@@ -679,6 +578,25 @@ export default function PartnersPage() {
             Organizations that have placed their trust in Exquisitor to deliver
             exceptional talent at the highest level.
           </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-10"
+          >
+            <button
+              type="button"
+              data-ocid="partners.hero.build_team.button"
+              onClick={() => {
+                const el = document.getElementById("partner-form");
+                if (el)
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="bg-white text-black font-bold tracking-widest uppercase text-xs px-10 h-12 rounded hover:bg-white/90 transition-colors"
+            >
+              Build Your Team
+            </button>
+          </motion.div>
         </div>
       </section>
 
@@ -858,6 +776,283 @@ export default function PartnersPage() {
         </div>
       </section>
 
+      {/* ─── Financial Advantage Rate Card ───────────────────── */}
+      <section
+        className="py-28 lg:py-36 px-6"
+        style={{
+          background: "#050505",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={stagger}
+          >
+            {/* Eyebrow */}
+            <motion.p
+              variants={fadeUp}
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.35em",
+                textTransform: "uppercase",
+                color: "#A1A1AA",
+                fontWeight: 600,
+                marginBottom: 16,
+              }}
+            >
+              Geographic Arbitrage
+            </motion.p>
+
+            {/* Heading */}
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-6"
+            >
+              The Financial Advantage of an Exquisitor Partnership
+            </motion.h2>
+
+            {/* Sub-header */}
+            <motion.p
+              variants={fadeUp}
+              className="text-base leading-relaxed max-w-2xl mb-14"
+              style={{ color: "#A1A1AA" }}
+            >
+              Extend your runway. Access the top 1% of Ex-Unicorn Indian
+              engineers at a fraction of your local market rate. We handle 100%
+              of the cross-border HR, payroll, and compliance. Your engineer is
+              fully embedded into your daily operations and Slack channels.
+            </motion.p>
+
+            {/* Table */}
+            <motion.div variants={fadeUp}>
+              <div style={{ overflowX: "auto" }}>
+                <div
+                  style={{
+                    background: "#111111",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 4,
+                    minWidth: 640,
+                  }}
+                >
+                  <table
+                    style={{ width: "100%", borderCollapse: "collapse" }}
+                    aria-label="Global rate card"
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          background: "rgba(255,255,255,0.03)",
+                          borderBottom: "1px solid rgba(255,255,255,0.06)",
+                        }}
+                      >
+                        {[
+                          "Market",
+                          "Exquisitor Monthly Rate",
+                          "Average Local Cost",
+                          "Client Savings",
+                        ].map((heading) => (
+                          <th
+                            key={heading}
+                            style={{
+                              padding: "16px 24px",
+                              textAlign: "left",
+                              fontSize: 10,
+                              letterSpacing: "0.35em",
+                              textTransform: "uppercase",
+                              color: "#A1A1AA",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          flag: "🇬🇧",
+                          country: "United Kingdom",
+                          rate: "£5,500+",
+                          local: "£9,000 – £10,000 /mo",
+                          savings: "~45% Savings",
+                        },
+                        {
+                          flag: "🇺🇸",
+                          country: "United States",
+                          rate: "$7,000 – $8,500",
+                          local: "$10,000 – $16,000 /mo",
+                          savings: "~45–50% Savings",
+                        },
+                        {
+                          flag: "🇦🇺",
+                          country: "Australia",
+                          rate: "AUD 9,000 – 11,500",
+                          local: "AUD 13,000 – 16,000 /mo",
+                          savings: "~35–40% Savings",
+                        },
+                        {
+                          flag: "🇨🇭",
+                          country: "Switzerland",
+                          rate: "CHF 8,500 – 10,500",
+                          local: "CHF 10,000 – 17,000 /mo",
+                          savings: "~40–50% Savings",
+                        },
+                        {
+                          flag: "🇩🇰",
+                          country: "Denmark",
+                          rate: "DKK 45,000 – 55,000",
+                          local: "DKK 60,000 – 70,000 /mo",
+                          savings: "~30–35% Savings",
+                        },
+                        {
+                          flag: "🇸🇪",
+                          country: "Sweden",
+                          rate: "SEK 65,000 – 80,000",
+                          local: "SEK 100,000 – 115,000 /mo",
+                          savings: "~30–35% Savings",
+                        },
+                      ].map((row, idx) => (
+                        <tr
+                          key={row.country}
+                          data-ocid={`partners.rate_card.row.${idx + 1}`}
+                          style={{
+                            borderBottom:
+                              idx < 5
+                                ? "1px solid rgba(255,255,255,0.05)"
+                                : "none",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            (
+                              e.currentTarget as HTMLTableRowElement
+                            ).style.background = "rgba(255,255,255,0.02)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (
+                              e.currentTarget as HTMLTableRowElement
+                            ).style.background = "transparent";
+                          }}
+                        >
+                          {/* Country */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
+                            >
+                              <span style={{ fontSize: "1.25rem" }}>
+                                {row.flag}
+                              </span>
+                              <span
+                                style={{
+                                  color: "#FFFFFF",
+                                  fontWeight: 700,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {row.country}
+                              </span>
+                            </span>
+                          </td>
+
+                          {/* Exquisitor Rate */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              color: "#FFFFFF",
+                              fontSize: 14,
+                              fontWeight: 500,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {row.rate}
+                          </td>
+
+                          {/* Local Cost — hidden on small screens */}
+                          <td
+                            className="hidden md:table-cell"
+                            style={{
+                              padding: "20px 24px",
+                              color: "#A1A1AA",
+                              fontSize: 14,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {row.local}
+                          </td>
+
+                          {/* Client Savings — emerald badge */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: "rgba(16, 185, 129, 0.1)",
+                                border: "1px solid rgba(16, 185, 129, 0.25)",
+                                color: "#10b981",
+                                fontWeight: 700,
+                                padding: "4px 12px",
+                                borderRadius: 4,
+                                fontSize: 13,
+                                letterSpacing: "0.05em",
+                              }}
+                            >
+                              {row.savings}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* CTA Row */}
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-4"
+              style={{ marginTop: 32 }}
+            >
+              <p
+                className="text-sm text-center sm:text-left"
+                style={{ color: "#A1A1AA" }}
+              >
+                Ready to extend your engineering runway?
+              </p>
+              <button
+                type="button"
+                data-ocid="partners.rate_card.build_team.button"
+                onClick={() => {
+                  const el = document.getElementById("partner-form");
+                  if (el)
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="bg-white text-black font-bold tracking-widest uppercase text-xs px-10 h-12 rounded hover:bg-white/90 transition-colors shrink-0"
+              >
+                Begin Partnership
+              </button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ─── The Exquisitor Advantage ─────────────────────────── */}
       <section
         className="py-28 lg:py-36 px-6"
@@ -921,115 +1116,6 @@ export default function PartnersPage() {
               ))}
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Partners Grid */}
-      <section
-        className="py-24 lg:py-32 px-6"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <div className="max-w-[1200px] mx-auto">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {["a", "b", "c", "d", "e", "f"].map((id) => (
-                <div
-                  key={id}
-                  className="rounded p-8 space-y-3"
-                  style={{
-                    background: "#111111",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <Skeleton className="h-5 w-1/3 animate-shimmer" />
-                  <Skeleton className="h-4 w-1/2 animate-shimmer" />
-                  <Skeleton className="h-16 w-full animate-shimmer" />
-                </div>
-              ))}
-            </div>
-          ) : !partners || partners.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              data-ocid="partners.list.empty_state"
-              className="text-center py-24"
-            >
-              <div
-                className="inline-flex p-5 rounded-full mb-6"
-                style={{
-                  background: "#111111",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <Building2 className="h-8 w-8" style={{ color: "#A1A1AA" }} />
-              </div>
-              <p className="text-xl" style={{ color: "#A1A1AA" }}>
-                Our partner network is growing — check back soon.
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={stagger}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {partners.map((partner, idx) => (
-                <motion.div
-                  key={partner.id.toString()}
-                  variants={fadeUp}
-                  data-ocid={`partners.list.item.${idx + 1}`}
-                  className="luxury-card p-8 rounded group"
-                >
-                  {/* Logo / Initial */}
-                  <div className="flex items-start gap-4 mb-6">
-                    {partner.logoUrl ? (
-                      <img
-                        src={partner.logoUrl}
-                        alt={partner.name}
-                        className="h-12 w-12 rounded object-contain p-1.5"
-                        style={{
-                          background: "#050505",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="h-12 w-12 rounded flex items-center justify-center font-bold text-lg text-white"
-                        style={{
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                        }}
-                      >
-                        {partner.name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-white truncate">
-                        {partner.name}
-                      </h3>
-                      <Badge
-                        variant="secondary"
-                        className="mt-1.5 text-[10px] tracking-wider uppercase border-0"
-                        style={{
-                          background: "rgba(255,255,255,0.06)",
-                          color: "#A1A1AA",
-                        }}
-                      >
-                        {partner.industry}
-                      </Badge>
-                    </div>
-                  </div>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "#A1A1AA" }}
-                  >
-                    {partner.description}
-                  </p>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
         </div>
       </section>
 

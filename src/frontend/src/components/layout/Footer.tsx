@@ -44,14 +44,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Tagline */}
+          {/* HQ Address */}
           <div>
             <h4 className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-5">
-              Our Promise
+              Global Headquarters
             </h4>
-            <blockquote className="text-sm text-muted-foreground leading-relaxed italic">
-              "We don't fill positions. We elevate organizations."
-            </blockquote>
+            <address className="not-italic text-sm text-muted-foreground leading-relaxed space-y-0.5">
+              <p className="text-foreground font-semibold">Exquisitor</p>
+              <p>Office 933, 60 Tottenham Court Road</p>
+              <p>Fitzrovia, London, W1T 2EW</p>
+              <p>United Kingdom</p>
+            </address>
           </div>
         </div>
 

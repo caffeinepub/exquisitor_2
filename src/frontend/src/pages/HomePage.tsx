@@ -626,6 +626,284 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── Geographic Arbitrage Rate Card ──────────────────── */}
+      <section
+        className="py-28 lg:py-36 px-6"
+        style={{
+          background: "#050505",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={stagger}
+          >
+            {/* Eyebrow */}
+            <motion.p
+              variants={fadeUp}
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.35em",
+                textTransform: "uppercase",
+                color: "#A1A1AA",
+                fontWeight: 600,
+                marginBottom: 16,
+              }}
+            >
+              Geographic Arbitrage
+            </motion.p>
+
+            {/* Heading */}
+            <motion.h2
+              variants={fadeUp}
+              className="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-6"
+            >
+              Exquisitor Embedded: The Geographic Arbitrage
+            </motion.h2>
+
+            {/* Sub-header */}
+            <motion.p
+              variants={fadeUp}
+              className="text-base leading-relaxed max-w-2xl mb-14"
+              style={{ color: "#A1A1AA" }}
+            >
+              Extend your runway. Access the top 1% of Ex-Unicorn Indian
+              engineers at a fraction of your local market rate. We handle 100%
+              of the cross-border HR, payroll, and compliance. Your engineer is
+              fully embedded into your daily operations and Slack channels.
+            </motion.p>
+
+            {/* Table */}
+            <motion.div variants={fadeUp}>
+              <div style={{ overflowX: "auto" }}>
+                <div
+                  style={{
+                    background: "#111111",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 4,
+                    minWidth: 640,
+                  }}
+                >
+                  <table
+                    style={{ width: "100%", borderCollapse: "collapse" }}
+                    aria-label="Global rate card"
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          background: "rgba(255,255,255,0.03)",
+                          borderBottom: "1px solid rgba(255,255,255,0.06)",
+                        }}
+                      >
+                        {[
+                          "Market",
+                          "Exquisitor Monthly Rate",
+                          "Average Local Cost",
+                          "Client Savings",
+                        ].map((heading) => (
+                          <th
+                            key={heading}
+                            style={{
+                              padding: "16px 24px",
+                              textAlign: "left",
+                              fontSize: 10,
+                              letterSpacing: "0.35em",
+                              textTransform: "uppercase",
+                              color: "#A1A1AA",
+                              fontWeight: 600,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {heading}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          flag: "🇬🇧",
+                          country: "United Kingdom",
+                          rate: "£5,500+",
+                          local: "£9,000 – £10,000 /mo",
+                          savings: "~45% Savings",
+                        },
+                        {
+                          flag: "🇺🇸",
+                          country: "United States",
+                          rate: "$7,000 – $8,500",
+                          local: "$10,000 – $16,000 /mo",
+                          savings: "~45–50% Savings",
+                        },
+                        {
+                          flag: "🇦🇺",
+                          country: "Australia",
+                          rate: "AUD 9,000 – 11,500",
+                          local: "AUD 13,000 – 16,000 /mo",
+                          savings: "~35–40% Savings",
+                        },
+                        {
+                          flag: "🇨🇭",
+                          country: "Switzerland",
+                          rate: "CHF 8,500 – 10,500",
+                          local: "CHF 10,000 – 17,000 /mo",
+                          savings: "~40–50% Savings",
+                        },
+                        {
+                          flag: "🇩🇰",
+                          country: "Denmark",
+                          rate: "DKK 45,000 – 55,000",
+                          local: "DKK 60,000 – 70,000 /mo",
+                          savings: "~30–35% Savings",
+                        },
+                        {
+                          flag: "🇸🇪",
+                          country: "Sweden",
+                          rate: "SEK 65,000 – 80,000",
+                          local: "SEK 100,000 – 115,000 /mo",
+                          savings: "~30–35% Savings",
+                        },
+                      ].map((row, idx) => (
+                        <tr
+                          key={row.country}
+                          data-ocid={`home.rate_card.row.${idx + 1}`}
+                          style={{
+                            borderBottom:
+                              idx < 5
+                                ? "1px solid rgba(255,255,255,0.05)"
+                                : "none",
+                            transition: "background 0.15s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            (
+                              e.currentTarget as HTMLTableRowElement
+                            ).style.background = "rgba(255,255,255,0.02)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (
+                              e.currentTarget as HTMLTableRowElement
+                            ).style.background = "transparent";
+                          }}
+                        >
+                          {/* Country */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
+                            >
+                              <span style={{ fontSize: "1.25rem" }}>
+                                {row.flag}
+                              </span>
+                              <span
+                                style={{
+                                  color: "#FFFFFF",
+                                  fontWeight: 700,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {row.country}
+                              </span>
+                            </span>
+                          </td>
+
+                          {/* Exquisitor Rate */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              color: "#FFFFFF",
+                              fontSize: 14,
+                              fontWeight: 500,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {row.rate}
+                          </td>
+
+                          {/* Local Cost — hidden on small screens */}
+                          <td
+                            className="hidden md:table-cell"
+                            style={{
+                              padding: "20px 24px",
+                              color: "#A1A1AA",
+                              fontSize: 14,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {row.local}
+                          </td>
+
+                          {/* Client Savings — emerald badge */}
+                          <td
+                            style={{
+                              padding: "20px 24px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: "rgba(16, 185, 129, 0.1)",
+                                border: "1px solid rgba(16, 185, 129, 0.25)",
+                                color: "#10b981",
+                                fontWeight: 700,
+                                padding: "4px 12px",
+                                borderRadius: 4,
+                                fontSize: 13,
+                                letterSpacing: "0.05em",
+                              }}
+                            >
+                              {row.savings}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* CTA Row */}
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-4"
+              style={{ marginTop: 32 }}
+            >
+              <p
+                className="text-sm text-center sm:text-left"
+                style={{ color: "#A1A1AA" }}
+              >
+                Ready to extend your engineering runway?
+              </p>
+              <button
+                type="button"
+                data-ocid="home.rate_card.build_team.button"
+                onClick={() =>
+                  navigate({
+                    to: "/partners",
+                    search: { model: MODEL_EMBEDDED },
+                  })
+                }
+                className="bg-white text-black font-bold tracking-widest uppercase text-xs px-10 h-12 rounded hover:bg-white/90 transition-colors shrink-0"
+              >
+                Build Your Team
+              </button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ─── Dedicated Disciplines ───────────────────────────── */}
       <section
         className="py-28 lg:py-36 px-6"

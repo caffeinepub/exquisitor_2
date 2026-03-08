@@ -1,4 +1,4 @@
-import { ExternalLink, Linkedin, Mail, MapPin, Phone, X } from "lucide-react";
+import { ExternalLink, Linkedin, Mail, MapPin, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 interface InquiryDrawerProps {
@@ -73,14 +73,15 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                       Global HQ
                     </span>
                   </div>
-                  <p className="text-base font-medium text-white leading-snug">
-                    1 Canada Square, Canary Wharf,
-                    <br />
-                    London, E14 5AB
-                  </p>
+                  <address className="not-italic text-base font-medium text-white leading-snug space-y-0.5">
+                    <p className="font-semibold">Exquisitor</p>
+                    <p>Office 933, 60 Tottenham Court Road</p>
+                    <p>Fitzrovia, London, W1T 2EW</p>
+                    <p>United Kingdom</p>
+                  </address>
                   {/* Google Maps iframe — grayscale dark filter */}
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483.0!2d-0.0197!3d51.5054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487602b3b3b3b3b3%3A0x0!2sCanary+Wharf%2C+London!5e0!3m2!1sen!2suk!4v1234567890"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.3485!2d-0.136439!3d51.520837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b2e0e3f71cd%3A0x9cf8b0e38b4e8cb0!2s60%20Tottenham%20Court%20Rd%2C%20London%20W1T%202EW!5e0!3m2!1sen!2suk!4v1700000000000"
                     width="100%"
                     height="160"
                     style={{
@@ -98,22 +99,6 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                   />
                 </div>
 
-                {/* Phone */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-white/30" />
-                    <span className="text-[10px] tracking-[0.35em] uppercase text-white/30 font-semibold">
-                      Direct Line
-                    </span>
-                  </div>
-                  <a
-                    href="tel:+442079460958"
-                    className="block text-lg font-medium text-white hover:text-white/70 transition-colors"
-                  >
-                    +44 20 7946 0958
-                  </a>
-                </div>
-
                 {/* WhatsApp */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -122,7 +107,7 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                     </span>
                   </div>
                   <a
-                    href="https://wa.me/442079460958"
+                    href="https://wa.me/919625566581"
                     target="_blank"
                     rel="noopener noreferrer"
                     data-ocid="drawer.whatsapp.button"
