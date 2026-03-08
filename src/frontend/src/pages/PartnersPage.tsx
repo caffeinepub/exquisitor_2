@@ -1,7 +1,6 @@
-import { useSearch } from "@tanstack/react-router";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { type Variants, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabaseClient";
 
@@ -16,7 +15,7 @@ const TECH_STACK_OPTIONS = [
 ];
 
 const EXPERIENCE_LEVEL_OPTIONS = [
-  "Senior Engineer (5+ Years)",
+  "Senior Engineer",
   "Engineering Lead",
   "Systems Architect",
 ];
@@ -30,9 +29,9 @@ const INDUSTRY_OPTIONS = [
 ];
 
 const ENGAGEMENT_MODEL_OPTIONS = [
-  "Dedicated Team",
-  "Project-Based",
-  "Staff Augmentation",
+  "Exquisitor Direct",
+  "Exquisitor Embedded",
+  "Project Based",
 ];
 
 const stagger: Variants = {
@@ -57,18 +56,12 @@ const inputStyle = {
 const labelClass =
   "block text-[10px] tracking-[0.35em] uppercase font-semibold mb-2.5";
 
-// Model strings used as URL params
-const MODEL_EMBEDDED = "Exquisitor Embedded (Starting from £5,500/mo)";
-const MODEL_DIRECT = "Exquisitor Direct (20% of First-Year Salary)";
-const MODEL_PROJECT = "Exquisitor Project (Project-Based Billing)";
-
 const partnerEngagementModels = [
   {
     tag: "Signature Service",
     featured: true,
     title: "Exquisitor Embedded",
     subtitle: "Staff Augmentation",
-    modelParam: MODEL_EMBEDDED,
     pricingStartingFrom: true,
     price: "£5,500 / month",
     priceNote: "Monthly Retainer",
@@ -79,7 +72,6 @@ const partnerEngagementModels = [
     featured: false,
     title: "Exquisitor Direct",
     subtitle: "Executive Search",
-    modelParam: MODEL_DIRECT,
     pricingStartingFrom: false,
     price: "20% of First-Year Salary",
     priceNote: "One-Time Fee",
@@ -90,7 +82,6 @@ const partnerEngagementModels = [
     featured: false,
     title: "Exquisitor Project",
     subtitle: "End-to-End Delivery",
-    modelParam: MODEL_PROJECT,
     pricingStartingFrom: false,
     price: "Project-Based Billing",
     priceNote: null,
@@ -116,15 +107,7 @@ const competitiveAdvantages = [
   },
 ];
 
-interface PartnerLeadFormProps {
-  selectedModel: string;
-  onSelectedModelChange: (model: string) => void;
-}
-
-function PartnerLeadForm({
-  selectedModel,
-  onSelectedModelChange,
-}: PartnerLeadFormProps) {
+function PartnerLeadForm() {
   const [form, setForm] = useState({
     companyName: "",
     corporateEmail: "",
@@ -170,7 +153,6 @@ function PartnerLeadForm({
           tech_stack: [form.techStackNeeded],
           experience_level: form.experienceLevel,
           industry_vertical: form.industryVertical,
-          selected_model: selectedModel,
           engagement_model: form.engagement_model,
         });
         if (error) throw error;
@@ -226,32 +208,6 @@ function PartnerLeadForm({
         border: "1px solid rgba(255,255,255,0.1)",
       }}
     >
-      {/* Selected Engagement Model — read-only, auto-filled */}
-      <div>
-        <label
-          htmlFor="pl-selectedModel"
-          className={labelClass}
-          style={{ color: "rgba(255,255,255,0.4)" }}
-        >
-          Selected Engagement Model
-        </label>
-        <input
-          id="pl-selectedModel"
-          name="selectedModel"
-          type="text"
-          readOnly
-          value={selectedModel}
-          onChange={(e) => onSelectedModelChange(e.target.value)}
-          placeholder="Select a model from above to auto-fill"
-          className="w-full h-14 px-4 text-sm text-white rounded outline-none cursor-default"
-          style={{
-            background: "#0a1a14",
-            border: "1px solid #064e3b",
-          }}
-          data-ocid="partners.selected_model.input"
-        />
-      </div>
-
       {/* Company Name */}
       <div>
         <label
@@ -523,20 +479,9 @@ function PartnerLeadForm({
 }
 
 export default function PartnersPage() {
-  const search = useSearch({ from: "/partners" });
-  const [selectedModel, setSelectedModel] = useState(search.model ?? "");
   const formSectionRef = useRef<HTMLElement>(null);
 
-  // Sync URL param to form state on mount / when URL param changes
-  useEffect(() => {
-    if (search.model) {
-      setSelectedModel(search.model);
-    }
-  }, [search.model]);
-
-  const handleSelectModel = (modelParam: string) => {
-    setSelectedModel(modelParam);
-    // Smooth scroll to the partner form
+  const scrollToForm = () => {
     const el = document.getElementById("partner-form");
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -759,11 +704,11 @@ export default function PartnersPage() {
                       {model.body}
                     </p>
 
-                    {/* Select This Model CTA */}
+                    {/* Select This Model CTA — anchor scroll to inquiry form */}
                     <button
                       type="button"
                       data-ocid={`partners.engagement.select_button.${partnerEngagementModels.indexOf(model) + 1}`}
-                      onClick={() => handleSelectModel(model.modelParam)}
+                      onClick={scrollToForm}
                       className="mt-4 w-full h-12 bg-white text-black font-bold tracking-widest uppercase text-xs rounded hover:bg-white/90 transition-colors"
                     >
                       Select This Model
@@ -1181,10 +1126,7 @@ export default function PartnersPage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.15 }}
             >
-              <PartnerLeadForm
-                selectedModel={selectedModel}
-                onSelectedModelChange={setSelectedModel}
-              />
+              <PartnerLeadForm />
             </motion.div>
           </div>
         </div>
