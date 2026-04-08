@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const hostname = encodeURIComponent(window.location.hostname);
 
   return (
     <footer className="bg-background border-t border-border py-16">
@@ -44,35 +43,54 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* HQ Address */}
+          {/* HQ Address + Contact */}
           <div>
             <h4 className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-5">
               Global Headquarters
             </h4>
-            <address className="not-italic text-sm text-muted-foreground leading-relaxed space-y-0.5">
+            <address className="not-italic text-sm text-muted-foreground leading-relaxed space-y-0.5 mb-4">
               <p className="text-foreground font-semibold">Exquisitor</p>
               <p>Office 933, 60 Tottenham Court Road</p>
               <p>Fitzrovia, London, W1T 2EW</p>
               <p>United Kingdom</p>
             </address>
+            <div className="space-y-1.5 text-sm">
+              <a
+                href="tel:+447348952735"
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                data-ocid="footer.phone.link"
+              >
+                +44 7348 952735
+              </a>
+              <a
+                href="mailto:founders@exquisitor.tech"
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                data-ocid="footer.email.link"
+              >
+                founders@exquisitor.tech
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="border-t border-border pt-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground flex-wrap">
             <span>© {year} Exquisitor. All rights reserved.</span>
-            <span>
-              Built with <span className="text-muted-foreground">♥</span> using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${hostname}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-              >
-                caffeine.ai
-              </a>
-            </span>
+            <span style={{ color: "rgba(255,255,255,0.15)" }}>·</span>
+            <Link
+              to="/privacy-policy"
+              className="hover:text-foreground transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <span style={{ color: "rgba(255,255,255,0.15)" }}>·</span>
+            <Link
+              to="/cookie-policy"
+              className="hover:text-foreground transition-colors duration-200"
+            >
+              Cookie Policy
+            </Link>
           </div>
         </div>
       </div>

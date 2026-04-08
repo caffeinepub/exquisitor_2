@@ -88,7 +88,19 @@ export default function Navbar({ onOpenDrawer }: NavbarProps) {
       <nav className="max-w-[1200px] mx-auto px-12 h-[76px] flex items-center relative">
         {/* Logo — far left */}
         <Link to="/" className="shrink-0" data-ocid="nav.link">
-          <span className="text-sm font-black tracking-[0.35em] text-white uppercase select-none">
+          <span
+            style={{
+              fontFamily:
+                "'Inter', 'SF Pro Display', 'Helvetica Neue', sans-serif",
+              fontWeight: 700,
+              fontSize: "1.15rem",
+              letterSpacing: "-0.045em",
+              color: "#FFFFFF",
+              lineHeight: 1,
+              userSelect: "none",
+            }}
+            className="md:text-[1.15rem] text-[1rem]"
+          >
             EXQUISITOR
           </span>
         </Link>

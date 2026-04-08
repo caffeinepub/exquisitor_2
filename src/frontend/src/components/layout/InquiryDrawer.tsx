@@ -1,12 +1,47 @@
-import { ExternalLink, Linkedin, Mail, MapPin, X } from "lucide-react";
+import { Mail, MapPin, Phone, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 
 interface InquiryDrawerProps {
   open: boolean;
   onClose: () => void;
 }
 
+const CALENDLY_DISCOVERY =
+  "https://calendly.com/founders-exquisitor/new-meeting";
+const CALENDLY_STRATEGY =
+  "https://calendly.com/founders-exquisitor/strategic-seesion";
+
+function openCalendly(url: string) {
+  if ((window as any).Calendly?.initPopupWidget) {
+    (window as any).Calendly.initPopupWidget({ url });
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+}
+
 export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
+  // Load Calendly widget assets once on mount
+  useEffect(() => {
+    const CALENDLY_CSS =
+      "https://assets.calendly.com/assets/external/widget.css";
+    const CALENDLY_JS = "https://assets.calendly.com/assets/external/widget.js";
+
+    if (!document.querySelector(`link[href="${CALENDLY_CSS}"]`)) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = CALENDLY_CSS;
+      document.head.appendChild(link);
+    }
+
+    if (!document.querySelector(`script[src="${CALENDLY_JS}"]`)) {
+      const script = document.createElement("script");
+      script.src = CALENDLY_JS;
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, []);
+
   return (
     <AnimatePresence>
       {open && (
@@ -79,24 +114,46 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                     <p>Fitzrovia, London, W1T 2EW</p>
                     <p>United Kingdom</p>
                   </address>
-                  {/* Google Maps iframe — grayscale dark filter */}
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.3485!2d-0.136439!3d51.520837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b2e0e3f71cd%3A0x9cf8b0e38b4e8cb0!2s60%20Tottenham%20Court%20Rd%2C%20London%20W1T%202EW!5e0!3m2!1sen!2suk!4v1700000000000"
-                    width="100%"
-                    height="160"
-                    style={{
-                      border: 0,
-                      borderRadius: 4,
-                      marginTop: 12,
-                      filter:
-                        "grayscale(100%) invert(90%) contrast(85%) brightness(0.4)",
-                      display: "block",
-                    }}
-                    allowFullScreen={false}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Exquisitor HQ"
-                  />
+                  {/* Google Maps iframe — only rendered when drawer is open to avoid blocking initial paint */}
+                  {open && (
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.3485!2d-0.136439!3d51.520837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48761b2e0e3f71cd%3A0x9cf8b0e38b4e8cb0!2s60%20Tottenham%20Court%20Rd%2C%20London%20W1T%202EW!5e0!3m2!1sen!2suk!4v1700000000000"
+                      width="100%"
+                      height="160"
+                      style={{
+                        border: 0,
+                        borderRadius: 4,
+                        marginTop: 12,
+                        filter:
+                          "grayscale(100%) invert(90%) contrast(85%) brightness(0.4)",
+                        display: "block",
+                      }}
+                      allowFullScreen={false}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Exquisitor HQ"
+                    />
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-white/30" />
+                    <span className="text-[10px] tracking-[0.35em] uppercase text-white/30 font-semibold">
+                      Phone
+                    </span>
+                  </div>
+                  <a
+                    href="tel:+447348952735"
+                    data-ocid="drawer.phone.button"
+                    className="block text-lg font-medium text-white hover:text-white/70 transition-colors group"
+                  >
+                    +44 7348 952735
+                    <span className="inline-block ml-1.5 opacity-0 group-hover:opacity-60 transition-opacity text-sm">
+                      →
+                    </span>
+                  </a>
                 </div>
 
                 {/* WhatsApp */}
@@ -107,7 +164,7 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                     </span>
                   </div>
                   <a
-                    href="https://wa.me/919625566581"
+                    href="https://wa.me/447348952735"
                     target="_blank"
                     rel="noopener noreferrer"
                     data-ocid="drawer.whatsapp.button"
@@ -133,6 +190,51 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
               {/* ── 64px Gap ───────────────────────────────────── */}
               <div style={{ height: 64 }} />
 
+              {/* ── Section: Schedule a Call ─────────────────── */}
+              <div>
+                <p className="text-[10px] tracking-[0.4em] uppercase text-white/30 font-semibold mb-6">
+                  Schedule a Call
+                </p>
+                <p className="text-sm text-white/40 leading-relaxed mb-8">
+                  Book a dedicated session with our founders.
+                </p>
+                <div className="flex flex-col gap-4">
+                  <button
+                    type="button"
+                    data-ocid="drawer.book_discovery.button"
+                    className="w-full h-12 rounded text-sm font-semibold tracking-wide text-white transition-colors hover:bg-white/5"
+                    style={{
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "transparent",
+                    }}
+                    onClick={() => openCalendly(CALENDLY_DISCOVERY)}
+                  >
+                    Book 15-Min Discovery Briefing
+                  </button>
+                  <button
+                    type="button"
+                    data-ocid="drawer.book_strategy.button"
+                    className="w-full h-12 rounded text-sm font-semibold tracking-wide text-white transition-colors hover:bg-white/5"
+                    style={{
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "transparent",
+                    }}
+                    onClick={() => openCalendly(CALENDLY_STRATEGY)}
+                  >
+                    Book 50-Min Architecture Strategy
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Divider ──── */}
+              <div
+                style={{
+                  height: "1px",
+                  background: "rgba(255,255,255,0.06)",
+                  margin: "40px 0",
+                }}
+              />
+
               {/* ── Section 2: Existing Contact Info ──────────── */}
               <div className="space-y-10">
                 {/* Email */}
@@ -144,10 +246,10 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                     </span>
                   </div>
                   <a
-                    href="mailto:partners@exquisitor.agency"
+                    href="mailto:founders@exquisitor.tech"
                     className="block text-lg font-medium text-white hover:text-white/70 transition-colors group"
                   >
-                    partners@exquisitor.agency
+                    founders@exquisitor.tech
                     <span className="inline-block ml-1.5 opacity-0 group-hover:opacity-60 transition-opacity text-sm">
                       →
                     </span>
@@ -174,41 +276,12 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
                     </span>
                   </div>
                   <p className="text-lg font-medium text-white">
-                    Serving the UK, USA, and Australia.
+                    Serving the UK, USA, Australia, and the EU.
                   </p>
                   <p className="text-sm text-white/40 leading-relaxed">
-                    Elite engineering talent placed across three continents,
+                    Elite engineering talent placed across four markets,
                     timezone-aligned for your team.
                   </p>
-                </div>
-
-                {/* Divider */}
-                <div
-                  style={{
-                    height: "1px",
-                    background: "rgba(255,255,255,0.06)",
-                  }}
-                />
-
-                {/* LinkedIn */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Linkedin className="h-3.5 w-3.5 text-white/30" />
-                    <span className="text-[10px] tracking-[0.35em] uppercase text-white/30 font-semibold">
-                      LinkedIn
-                    </span>
-                  </div>
-                  <a
-                    href="https://linkedin.com/company/exquisitor"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors group"
-                  >
-                    <span className="text-base font-medium">
-                      linkedin.com/company/exquisitor
-                    </span>
-                    <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 transition-opacity" />
-                  </a>
                 </div>
               </div>
             </div>
@@ -219,7 +292,7 @@ export default function InquiryDrawer({ open, onClose }: InquiryDrawerProps) {
               style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
             >
               <a
-                href="mailto:partners@exquisitor.agency"
+                href="mailto:founders@exquisitor.tech"
                 className="flex items-center justify-center w-full h-14 bg-white text-black font-bold tracking-widest uppercase text-xs hover:bg-white/90 transition-colors rounded"
               >
                 Send an Email

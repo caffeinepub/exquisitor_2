@@ -4,6 +4,279 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabaseClient";
 
+// ─── Shared rate card data ────────────────────────────────────
+export const rateCardRows = [
+  {
+    flag: "🇬🇧",
+    country: "United Kingdom",
+    rate: "£5,500+",
+    local: "£9,000 – £10,000 /mo",
+    savings: "~45% Savings",
+  },
+  {
+    flag: "🇺🇸",
+    country: "United States",
+    rate: "$7,000 – $8,500",
+    local: "$10,000 – $16,000 /mo",
+    savings: "~45–50% Savings",
+  },
+  {
+    flag: "🇦🇺",
+    country: "Australia",
+    rate: "AUD 9,000 – 11,500",
+    local: "AUD 13,000 – 16,000 /mo",
+    savings: "~35–40% Savings",
+  },
+  {
+    flag: "🇪🇺",
+    country: "European Union",
+    rate: "€6,500 – €8,000",
+    local: "€9,000 – €13,000 /mo",
+    savings: "~35–40% Savings",
+  },
+  {
+    flag: "🇨🇭",
+    country: "Switzerland",
+    rate: "CHF 8,500 – 10,500",
+    local: "CHF 10,000 – 17,000 /mo",
+    savings: "~40–50% Savings",
+  },
+  {
+    flag: "🇩🇰",
+    country: "Denmark",
+    rate: "DKK 45,000 – 55,000",
+    local: "DKK 60,000 – 70,000 /mo",
+    savings: "~30–35% Savings",
+  },
+  {
+    flag: "🇸🇪",
+    country: "Sweden",
+    rate: "SEK 65,000 – 80,000",
+    local: "SEK 100,000 – 115,000 /mo",
+    savings: "~30–35% Savings",
+  },
+];
+
+const savingsBadge = {
+  display: "inline-block" as const,
+  background: "rgba(16, 185, 129, 0.1)",
+  border: "1px solid rgba(16, 185, 129, 0.25)",
+  color: "#10b981",
+  fontWeight: 700,
+  padding: "4px 12px",
+  borderRadius: 4,
+  fontSize: 13,
+  letterSpacing: "0.05em",
+};
+
+// Responsive rate card: desktop = table, mobile = stacked cards
+export function RateCardTable({ ocidPrefix }: { ocidPrefix: string }) {
+  return (
+    <>
+      {/* ── Desktop table (md+) ───────────────────────────── */}
+      <div className="hidden md:block">
+        <div
+          style={{
+            background: "#111111",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 4,
+          }}
+        >
+          <table
+            style={{ width: "100%", borderCollapse: "collapse" }}
+            aria-label="Global rate card"
+          >
+            <thead>
+              <tr
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                {[
+                  "Market",
+                  "Exquisitor Monthly Rate",
+                  "Avg Market Rate / Local Cost",
+                  "Client Savings",
+                ].map((heading) => (
+                  <th
+                    key={heading}
+                    style={{
+                      padding: "16px 24px",
+                      textAlign: "left",
+                      fontSize: 10,
+                      letterSpacing: "0.35em",
+                      textTransform: "uppercase",
+                      color: "#A1A1AA",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {heading}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rateCardRows.map((row, idx) => (
+                <tr
+                  key={row.country}
+                  data-ocid={`${ocidPrefix}.rate_card.row.${idx + 1}`}
+                  style={{
+                    borderBottom:
+                      idx < rateCardRows.length - 1
+                        ? "1px solid rgba(255,255,255,0.05)"
+                        : "none",
+                    transition: "background 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLTableRowElement).style.background =
+                      "rgba(255,255,255,0.02)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLTableRowElement).style.background =
+                      "transparent";
+                  }}
+                >
+                  <td style={{ padding: "20px 24px", whiteSpace: "nowrap" }}>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <span style={{ fontSize: "1.25rem" }}>{row.flag}</span>
+                      <span
+                        style={{
+                          color: "#FFFFFF",
+                          fontWeight: 700,
+                          fontSize: 14,
+                        }}
+                      >
+                        {row.country}
+                      </span>
+                    </span>
+                  </td>
+                  <td
+                    style={{
+                      padding: "20px 24px",
+                      color: "#FFFFFF",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row.rate}
+                  </td>
+                  <td
+                    style={{
+                      padding: "20px 24px",
+                      color: "#A1A1AA",
+                      fontSize: 14,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row.local}
+                  </td>
+                  <td style={{ padding: "20px 24px", whiteSpace: "nowrap" }}>
+                    <span style={savingsBadge}>{row.savings}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── Mobile stacked cards (< md) ──────────────────── */}
+      <div className="md:hidden space-y-3">
+        {rateCardRows.map((row, idx) => (
+          <div
+            key={row.country}
+            data-ocid={`${ocidPrefix}.rate_card.row.${idx + 1}`}
+            style={{
+              background: "#111111",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 4,
+              padding: "20px 20px",
+            }}
+          >
+            {/* Country header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 14,
+                paddingBottom: 12,
+                borderBottom: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: "1.25rem" }}>{row.flag}</span>
+                <span
+                  style={{ color: "#FFFFFF", fontWeight: 700, fontSize: 15 }}
+                >
+                  {row.country}
+                </span>
+              </span>
+              <span style={savingsBadge}>{row.savings}</span>
+            </div>
+            {/* Rate rows */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "10px 16px",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontSize: 9,
+                    letterSpacing: "0.3em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.3)",
+                    fontWeight: 600,
+                    marginBottom: 4,
+                  }}
+                >
+                  Exquisitor Rate
+                </p>
+                <p style={{ color: "#FFFFFF", fontSize: 14, fontWeight: 600 }}>
+                  {row.rate}
+                </p>
+              </div>
+              <div>
+                <p
+                  style={{
+                    fontSize: 9,
+                    letterSpacing: "0.3em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.3)",
+                    fontWeight: 600,
+                    marginBottom: 4,
+                  }}
+                >
+                  Local Market Rate
+                </p>
+                <p style={{ color: "#A1A1AA", fontSize: 14 }}>{row.local}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 // Dropdown options
 const TECH_STACK_OPTIONS = [
   "React.js / Frontend",
@@ -771,202 +1044,9 @@ export default function PartnersPage() {
               fully embedded into your daily operations and Slack channels.
             </motion.p>
 
-            {/* Table */}
+            {/* Rate Card — Desktop table / Mobile stacked cards */}
             <motion.div variants={fadeUp}>
-              <div style={{ overflowX: "auto" }}>
-                <div
-                  style={{
-                    background: "#111111",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 4,
-                    minWidth: 640,
-                  }}
-                >
-                  <table
-                    style={{ width: "100%", borderCollapse: "collapse" }}
-                    aria-label="Global rate card"
-                  >
-                    <thead>
-                      <tr
-                        style={{
-                          background: "rgba(255,255,255,0.03)",
-                          borderBottom: "1px solid rgba(255,255,255,0.06)",
-                        }}
-                      >
-                        {[
-                          "Market",
-                          "Exquisitor Monthly Rate",
-                          "Average Local Cost",
-                          "Client Savings",
-                        ].map((heading) => (
-                          <th
-                            key={heading}
-                            style={{
-                              padding: "16px 24px",
-                              textAlign: "left",
-                              fontSize: 10,
-                              letterSpacing: "0.35em",
-                              textTransform: "uppercase",
-                              color: "#A1A1AA",
-                              fontWeight: 600,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {heading}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        {
-                          flag: "🇬🇧",
-                          country: "United Kingdom",
-                          rate: "£5,500+",
-                          local: "£9,000 – £10,000 /mo",
-                          savings: "~45% Savings",
-                        },
-                        {
-                          flag: "🇺🇸",
-                          country: "United States",
-                          rate: "$7,000 – $8,500",
-                          local: "$10,000 – $16,000 /mo",
-                          savings: "~45–50% Savings",
-                        },
-                        {
-                          flag: "🇦🇺",
-                          country: "Australia",
-                          rate: "AUD 9,000 – 11,500",
-                          local: "AUD 13,000 – 16,000 /mo",
-                          savings: "~35–40% Savings",
-                        },
-                        {
-                          flag: "🇨🇭",
-                          country: "Switzerland",
-                          rate: "CHF 8,500 – 10,500",
-                          local: "CHF 10,000 – 17,000 /mo",
-                          savings: "~40–50% Savings",
-                        },
-                        {
-                          flag: "🇩🇰",
-                          country: "Denmark",
-                          rate: "DKK 45,000 – 55,000",
-                          local: "DKK 60,000 – 70,000 /mo",
-                          savings: "~30–35% Savings",
-                        },
-                        {
-                          flag: "🇸🇪",
-                          country: "Sweden",
-                          rate: "SEK 65,000 – 80,000",
-                          local: "SEK 100,000 – 115,000 /mo",
-                          savings: "~30–35% Savings",
-                        },
-                      ].map((row, idx) => (
-                        <tr
-                          key={row.country}
-                          data-ocid={`partners.rate_card.row.${idx + 1}`}
-                          style={{
-                            borderBottom:
-                              idx < 5
-                                ? "1px solid rgba(255,255,255,0.05)"
-                                : "none",
-                            transition: "background 0.15s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            (
-                              e.currentTarget as HTMLTableRowElement
-                            ).style.background = "rgba(255,255,255,0.02)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (
-                              e.currentTarget as HTMLTableRowElement
-                            ).style.background = "transparent";
-                          }}
-                        >
-                          {/* Country */}
-                          <td
-                            style={{
-                              padding: "20px 24px",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 10,
-                              }}
-                            >
-                              <span style={{ fontSize: "1.25rem" }}>
-                                {row.flag}
-                              </span>
-                              <span
-                                style={{
-                                  color: "#FFFFFF",
-                                  fontWeight: 700,
-                                  fontSize: 14,
-                                }}
-                              >
-                                {row.country}
-                              </span>
-                            </span>
-                          </td>
-
-                          {/* Exquisitor Rate */}
-                          <td
-                            style={{
-                              padding: "20px 24px",
-                              color: "#FFFFFF",
-                              fontSize: 14,
-                              fontWeight: 500,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {row.rate}
-                          </td>
-
-                          {/* Local Cost — hidden on small screens */}
-                          <td
-                            className="hidden md:table-cell"
-                            style={{
-                              padding: "20px 24px",
-                              color: "#A1A1AA",
-                              fontSize: 14,
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {row.local}
-                          </td>
-
-                          {/* Client Savings — emerald badge */}
-                          <td
-                            style={{
-                              padding: "20px 24px",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            <span
-                              style={{
-                                display: "inline-block",
-                                background: "rgba(16, 185, 129, 0.1)",
-                                border: "1px solid rgba(16, 185, 129, 0.25)",
-                                color: "#10b981",
-                                fontWeight: 700,
-                                padding: "4px 12px",
-                                borderRadius: 4,
-                                fontSize: 13,
-                                letterSpacing: "0.05em",
-                              }}
-                            >
-                              {row.savings}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <RateCardTable ocidPrefix="partners" />
             </motion.div>
 
             {/* CTA Row */}
@@ -1103,7 +1183,7 @@ export default function PartnersPage() {
                 {[
                   "The Top 5% of Indian Engineering Talent",
                   "3–5 vetted candidate profiles within 72 hours",
-                  "Timezone-aligned for UK, USA & Australia",
+                  "Timezone-aligned for UK, USA, Australia & EU",
                   "14-day seamless deployment process",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">

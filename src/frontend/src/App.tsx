@@ -9,6 +9,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import CookieBanner from "./components/CookieBanner";
 import Footer from "./components/layout/Footer";
 import InquiryDrawer from "./components/layout/InquiryDrawer";
 import Navbar from "./components/layout/Navbar";
@@ -21,6 +22,8 @@ const AssociatesPage = lazy(() => import("./pages/AssociatesPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
 const OurDnaPage = lazy(() => import("./pages/OurDnaPage"));
 const TheStandardsPage = lazy(() => import("./pages/TheStandardsPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage"));
+const CookiePolicyPage = lazy(() => import("./pages/CookiePolicyPage"));
 
 // ─── Pulsing "E" route-transition fallback ─────────────────────────────────
 function RouteLoadingFallback() {
@@ -168,6 +171,7 @@ function RootLayout() {
           </Suspense>
         </main>
         <Footer />
+        <CookieBanner />
         <Toaster
           theme="dark"
           toastOptions={{
@@ -353,6 +357,18 @@ const authCallbackRoute = createRoute({
   component: AuthCallbackPage,
 });
 
+const privacyPolicyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/privacy-policy",
+  component: PrivacyPolicyPage,
+});
+
+const cookiePolicyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/cookie-policy",
+  component: CookiePolicyPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   partnersRoute,
@@ -361,6 +377,8 @@ const routeTree = rootRoute.addChildren([
   theStandardsRoute,
   adminRoute,
   authCallbackRoute,
+  privacyPolicyRoute,
+  cookiePolicyRoute,
 ]);
 
 const router = createRouter({ routeTree });

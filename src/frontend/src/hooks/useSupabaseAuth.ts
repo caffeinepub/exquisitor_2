@@ -7,22 +7,37 @@ const ADMIN_EMAIL = "admin@exquisitor.agency";
 export function useSupabaseAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Start as false — UI renders immediately in the "not signed in" state.
+  // The background session check will update state if a session is found,
+  // without ever blocking the initial paint.
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!supabase) {
-      setIsLoading(false);
-      return;
+    if (!supabase) return;
+
+    // Non-blocking background session check — fires after first paint.
+    // Using requestIdleCallback (Chrome/Firefox) or setTimeout(0) (Safari)
+    // ensures this never sits on the critical rendering path.
+    const checkSession = () => {
+      if (!supabase) return;
+      supabase.auth.getSession().then(({ data: { session: s } }) => {
+        if (s) {
+          setSession(s);
+          setUser(s.user ?? null);
+        }
+        setIsLoading(false);
+      });
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      (
+        window as Window & { requestIdleCallback: (cb: () => void) => void }
+      ).requestIdleCallback(checkSession);
+    } else {
+      setTimeout(checkSession, 0);
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      setIsLoading(false);
-    });
-
-    // Listen for auth changes
+    // Listen for auth changes (login / logout events)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, s) => {

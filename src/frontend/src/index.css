@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ──────────────────────────────────────── */
+
+@layer base {
+  :root {
+    --radius: 0.25rem;
+
+    /* Exquisitor Strict Luxury Dark palette */
+    --background: 0.07 0 0;
+    --foreground: 1 0 0;
+
+    --card: 0.11 0 0;
+    --card-foreground: 1 0 0;
+
+    --popover: 0.11 0 0;
+    --popover-foreground: 1 0 0;
+
+    /* White primary button */
+    --primary: 0.97 0 0;
+    --primary-foreground: 0.07 0 0;
+
+    --secondary: 0.14 0 0;
+    --secondary-foreground: 0.65 0.005 240;
+
+    --muted: 0.11 0 0;
+    --muted-foreground: 0.65 0.005 240;
+
+    --accent: 0.16 0 0;
+    --accent-foreground: 1 0 0;
+
+    --destructive: 0.62 0.22 27;
+    --destructive-foreground: 1 0 0;
+
+    --border: 0.18 0 0;
+    --input: 0.14 0 0;
+    --ring: 0.5 0 0;
+
+    --chart-1: 0.75 0 0;
+    --chart-2: 0.6 0.05 220;
+    --chart-3: 0.5 0.05 180;
+    --chart-4: 0.85 0 0;
+    --chart-5: 0.65 0.05 30;
+
+    --sidebar: 0.09 0 0;
+    --sidebar-foreground: 1 0 0;
+    --sidebar-primary: 0.97 0 0;
+    --sidebar-primary-foreground: 0.07 0 0;
+    --sidebar-accent: 0.13 0 0;
+    --sidebar-accent-foreground: 0.65 0.005 240;
+    --sidebar-border: 0.16 0 0;
+    --sidebar-ring: 0.5 0 0;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+      "Helvetica Neue", sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: oklch(0.07 0 0);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.22 0 0);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.35 0 0);
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────── */
+
+@layer utilities {
+  .section-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .luxury-card {
+    background: oklch(0.11 0 0);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: border-color 0.25s ease;
+  }
+
+  .luxury-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .bento-card {
+    background: oklch(0.11 0 0);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.25rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .bento-card:hover {
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 24px
+      rgba(255, 255, 255, 0.04);
+  }
+
+  .pricing-card {
+    background: oklch(0.11 0 0);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.25rem;
+    transition: border-color 0.25s ease;
+  }
+
+  .pricing-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .pricing-card-featured {
+    background: oklch(0.135 0 0);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 0.25rem;
+    transition: border-color 0.25s ease;
+  }
+
+  .pricing-card-featured:hover {
+    border-color: rgba(255, 255, 255, 1);
+  }
+}
+
+/* ─── Animation keyframes ─────────────────────────────────── */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(0.11 0 0) 0%,
+    oklch(0.16 0 0) 50%,
+    oklch(0.11 0 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s ease forwards;
+}
